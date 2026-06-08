@@ -964,6 +964,33 @@
     gap: 6px;
     margin-top: 8px;
   }
+
+  .audio-voice {
+    margin-top: 8px;
+  }
+  .audio-voice label {
+    display: block;
+    font-size: 11px;
+    color: rgba(245,240,232,0.78);
+    margin: 0 0 5px;
+  }
+  .voice-select {
+    width: 100%;
+    min-height: 38px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.10);
+    color: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0 12px;
+    outline: none;
+  }
+  .voice-select option {
+    color: #1a2818;
+    background: #ffffff;
+  }
   .speed-btn {
     flex: 1;
     min-height: 34px;
@@ -1815,14 +1842,30 @@ function filterGlossary() {
 
 
 /* ===================== AUDIO NOTES / LETTURA VOCALE ===================== */
-let audioRate = 0.95;
+let audioRate = 0.78;
+let audioPitch = 0.96;
 let currentUtterance = null;
+let availableVoices = [];
+let selectedVoiceURI = '';
+let audioVisibilityListenerAdded = false;
 
 function cleanTextForAudio(text) {
   return text
-    .replace(/[⛳📚📋🏌️🤝📖🎯🏆✅🔑⚠️💡🔴🟡⬜🔵⬛🟢⏱️🔍🏖️👣🤫🏳️👔📵🌿🔧🚗🗣️]/g, ' ')
+    .replace(/[⛳📚📋🏌️🤝📖🎯🏆✅🔑⚠️💡🔴🟡⬜🔵⬛🟢⏱️🔍🏖️👣🤫🏳️👔📵🌿🔧🚗🗣️▶⏸■]/g, ' ')
+    .replace(/\bOB\b/g, 'fuori limite')
+    .replace(/\bGUR\b/g, 'ground under repair')
+    .replace(/\bWHS\b/g, 'World Handicap System')
+    .replace(/R&A/g, 'R and A')
+    .replace(/USGA/g, 'U S G A')
+    .replace(/Green Card/g, 'green card')
+    .replace(/Tee Box/g, 'tee box')
+    .replace(/Penalty Area/g, 'penalty area')
+    .replace(/Out of Bounds/g, 'fuori limite')
+    .replace(/\s*[—–-]\s*/g, ', ')
+    .replace(/([.!?])\s+/g, '$1 ')
+    .replace(/:/g, '. ')
+    .replace(/;/g, '. ')
     .replace(/\s+/g, ' ')
-    .replace(/—/g, ', ')
     .trim();
 }
 
@@ -1837,6 +1880,67 @@ function setAudioStatus(message) {
   document.querySelectorAll('.audio-status').forEach(el => { el.textContent = message || ''; });
 }
 
+function loadVoices() {
+  if (!('speechSynthesis' in window)) return [];
+  availableVoices = window.speechSynthesis.getVoices() || [];
+  if (!selectedVoiceURI) {
+    const best = chooseBestItalianVoice();
+    if (best) selectedVoiceURI = best.voiceURI;
+  }
+  populateVoiceSelectors();
+  return availableVoices;
+}
+
+function chooseBestItalianVoice() {
+  const italian = availableVoices.filter(v => (v.lang || '').toLowerCase().startsWith('it'));
+  if (!italian.length) return null;
+  const priority = ['google', 'microsoft', 'elsa', 'alice', 'federica', 'luca', 'paolo', 'silvia', 'premium', 'enhanced'];
+  return italian
+    .map(v => {
+      const n = (v.name || '').toLowerCase();
+      let score = 0;
+      priority.forEach((p, i) => { if (n.includes(p)) score += 100 - i * 6; });
+      if (v.localService === false) score += 8;
+      if ((v.lang || '').toLowerCase() === 'it-it') score += 10;
+      return { voice: v, score };
+    })
+    .sort((a, b) => b.score - a.score)[0].voice;
+}
+
+function getSelectedVoice() {
+  if (!availableVoices.length) loadVoices();
+  return availableVoices.find(v => v.voiceURI === selectedVoiceURI) || chooseBestItalianVoice();
+}
+
+function populateVoiceSelectors() {
+  const italian = availableVoices.filter(v => (v.lang || '').toLowerCase().startsWith('it'));
+  document.querySelectorAll('.voice-select').forEach(select => {
+    const current = selectedVoiceURI || select.value;
+    select.innerHTML = '';
+    if (!italian.length) {
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Voce italiana automatica';
+      select.appendChild(opt);
+      return;
+    }
+    italian.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI;
+      opt.textContent = `${v.name} (${v.lang})`;
+      select.appendChild(opt);
+    });
+    const best = current || selectedVoiceURI || (chooseBestItalianVoice()?.voiceURI || '');
+    select.value = best;
+  });
+}
+
+function setAudioVoice(uri) {
+  selectedVoiceURI = uri || '';
+  document.querySelectorAll('.voice-select').forEach(s => { s.value = selectedVoiceURI; });
+  setAudioStatus('Voce aggiornata. Premi Ascolta per provarla.');
+}
+
 function speakText(text, label = 'testo') {
   if (!('speechSynthesis' in window)) {
     setAudioStatus('Lettura vocale non supportata da questo browser. Prova Safari su iPhone o Chrome su Android.');
@@ -1847,14 +1951,18 @@ function speakText(text, label = 'testo') {
     setAudioStatus('Nessun testo da leggere in questa sezione.');
     return;
   }
+  loadVoices();
   window.speechSynthesis.cancel();
   currentUtterance = new SpeechSynthesisUtterance(cleaned);
   currentUtterance.lang = 'it-IT';
+  const voice = getSelectedVoice();
+  if (voice) currentUtterance.voice = voice;
   currentUtterance.rate = audioRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = audioPitch;
+  currentUtterance.volume = 1;
   currentUtterance.onstart = () => setAudioStatus('Lettura in corso: ' + label);
   currentUtterance.onend = () => setAudioStatus('Lettura completata.');
-  currentUtterance.onerror = () => setAudioStatus('Lettura interrotta. Premi di nuovo Ascolta.');
+  currentUtterance.onerror = () => setAudioStatus('Lettura interrotta. Prova una voce diversa o premi di nuovo Ascolta.');
   window.speechSynthesis.speak(currentUtterance);
 }
 
@@ -1894,16 +2002,22 @@ function buildAudioPanel() {
   return `
     <div class="audio-panel" data-no-audio="true">
       <h3>Note audio</h3>
-      <p>Premi Ascolta prima di partire. Su alcuni telefoni lo schermo deve restare attivo per continuare la lettura.</p>
+      <p>Voce italiana più lenta e naturale quando disponibile. La qualità dipende dal telefono e dal browser.</p>
       <div class="audio-actions">
         <button class="audio-btn" type="button" onclick="speakCurrentSection()">▶ Ascolta</button>
         <button class="audio-btn secondary" type="button" onclick="togglePauseAudio()">⏸ Pausa</button>
         <button class="audio-btn secondary" type="button" onclick="stopAudio()">■ Stop</button>
       </div>
       <div class="audio-speed">
-        <button class="speed-btn" data-speed="slow" type="button" onclick="setAudioRate(0.82, this)">Lenta</button>
-        <button class="speed-btn active" data-speed="normal" type="button" onclick="setAudioRate(0.95, this)">Normale</button>
-        <button class="speed-btn" data-speed="fast" type="button" onclick="setAudioRate(1.12, this)">Veloce</button>
+        <button class="speed-btn" data-speed="very-slow" type="button" onclick="setAudioRate(0.68, this)">Molto lenta</button>
+        <button class="speed-btn active" data-speed="slow" type="button" onclick="setAudioRate(0.78, this)">Lenta</button>
+        <button class="speed-btn" data-speed="normal" type="button" onclick="setAudioRate(0.88, this)">Normale</button>
+      </div>
+      <div class="audio-voice">
+        <label>Voce</label>
+        <select class="voice-select" onchange="setAudioVoice(this.value)">
+          <option value="">Voce italiana automatica</option>
+        </select>
       </div>
       <div class="audio-status" aria-live="polite"></div>
     </div>`;
@@ -1918,15 +2032,24 @@ function initAudioNotes() {
   document.querySelectorAll('.card').forEach((card, idx) => {
     if (!card.querySelector('.listen-card')) {
       const title = card.querySelector('h2')?.textContent?.trim() || `Scheda ${idx + 1}`;
-      const safeTitle = title.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-      card.insertAdjacentHTML('afterbegin', `<button class="listen-card" type="button" data-audio-title="${safeTitle}" onclick="speakText(getReadableTextFromElement(this.closest('.card')), this.dataset.audioTitle)">▶ Ascolta scheda</button>`);
+      const safeTitle = title.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      card.insertAdjacentHTML('afterbegin', `<button class="listen-card" type="button" onclick="speakText(getReadableTextFromElement(this.closest('.card')), '${safeTitle}')">▶ Ascolta scheda</button>`);
     }
   });
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
-      setAudioStatus('Nota: alcuni telefoni possono sospendere l’audio con schermo bloccato.');
-    }
-  });
+  loadVoices();
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    setTimeout(loadVoices, 300);
+    setTimeout(loadVoices, 1000);
+  }
+  if (!audioVisibilityListenerAdded) {
+    audioVisibilityListenerAdded = true;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && 'speechSynthesis' in window && window.speechSynthesis.speaking) {
+        setAudioStatus('Nota: alcuni telefoni possono sospendere l’audio con schermo bloccato.');
+      }
+    });
+  }
 }
 
 window.addEventListener('beforeunload', stopAudio);
