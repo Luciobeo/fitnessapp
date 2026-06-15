@@ -292,7 +292,7 @@ body:before{
   <div class="ph">
     <div class="pt">Buongiorno Andrea 👋</div>
     <div class="ps" id="today-date"></div>
-    <span class="badge">Obiettivo: 90 kg · Alcol ZERO · 3L acqua/die</span>
+    <span class="badge">92.5 kg · -6.5 kg · Girovita 98 cm · Goal &lt;90 kg 💪</span>
   </div>
   <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Che tipo di giornata è?</div>
   <div class="daygrid">
@@ -407,7 +407,7 @@ body:before{
 
   <div class="card" style="margin-top:4px">
     <div class="card-title" style="color:#DC2626">🚨 Urgenze mediche</div>
-    <div class="semaf-row"><span class="semaf-badge sr">ALTA</span><div><div style="font-size:13px;font-weight:600">Ferritina: 608 ng/mL (era 486)</div><div style="font-size:12px;color:var(--text2)">Ecografia addominale urgente + epatologo</div></div></div>
+    <div class="semaf-row"><span class="semaf-badge sr">ALTA</span><div><div style="font-size:13px;font-weight:600">Ferritina: 608 ng/mL (era 486)</div><div style="font-size:12px;color:var(--text2)">Ecografia addominale — ANCORA DA FARE! Prenota subito</div></div></div>
     <div class="semaf-row"><span class="semaf-badge sr">ALTA</span><div><div style="font-size:13px;font-weight:600">ALT: 60 · GGT: 64 (fuori range)</div><div style="font-size:12px;color:var(--text2)">Alcol ZERO per 3-6 mesi</div></div></div>
     <div class="semaf-row"><span class="semaf-badge sr">BASSA</span><div><div style="font-size:13px;font-weight:600">Vitamina D: 20 ug/L (carenza)</div><div style="font-size:12px;color:var(--text2)">D3 6.000 UI/die — ricontrolla tra 3 mesi</div></div></div>
     <div class="semaf-row"><span class="semaf-badge sy">ALTA</span><div><div style="font-size:13px;font-weight:600">Lipoproteina(a): 259 nmol/L (max 105)</div><div style="font-size:12px;color:var(--text2)">Fattore genetico — comunica al medico</div></div></div>
@@ -547,7 +547,9 @@ function exSVG(type, exName) {
   return svgs[type] || svgs.chest;
 }
 
-const MEALS = {
+// MENU CON VARIAZIONI SETTIMANALI — aggiornato con farro, riso venere, filetto maiale, gamberoni ecc.
+// Ogni tipo ha 2 varianti (A e B) che si alternano settimana per settimana
+const MEALS_A = {
   r:[
     {t:"Colazione",n:"Whey 1 misurino + 300ml acqua fredda",k:"~140 kcal",tag:"p",img:"whey"},
     {t:"Spuntino",n:"1 mela + 20g noci",k:"170 kcal",tag:"f",img:"nuts"},
@@ -594,15 +596,71 @@ const MEALS = {
     {t:"INTEGR",n:"D3 × 1 · Zinco 25mg — con la cena",k:"—",tag:"i",img:null},
     {t:"INTEGR",n:"D3 × 1 terza dose — con noci",k:"—",tag:"i",img:null},
     {t:"INTEGR",n:"Magnesio 3 capsule — 30 min pre-nanna",k:"—",tag:"i",img:null},
-    {t:"Totale",n:"Calorie più alte · Pre-lungo: yogurt greco · Ben meritato!",k:"~1.900 kcal",tag:"tot",img:null},
+    {t:"Totale",n:"Calorie più alte · Pre-lungo yogurt greco · Ben meritato!",k:"~1.900 kcal",tag:"tot",img:null},
   ],
 };
 
+// VARIANTE B — pasti diversi per alternare settimana per settimana
+const MEALS_B = {
+  r:[
+    {t:"Colazione",n:"200g yogurt greco 0% + 15g burro arachidi 100% + cannella",k:"230 kcal",tag:"p",img:"yogurt"},
+    {t:"Spuntino",n:"1 pera + 15g noci",k:"160 kcal",tag:"f",img:"nuts"},
+    {t:"Pranzo",n:"3 uova + 80g lenticchie cotte + insalata + olio EVO",k:"500 kcal",tag:"p",img:"eggs"},
+    {t:"INTEGR",n:"D3 × 1 · Colina 700mg · Omega3 × 1 — con olio EVO",k:"—",tag:"i",img:null},
+    {t:"Spuntino",n:"150g yogurt greco 0% + 10g mandorle + cannella",k:"150 kcal",tag:"p",img:"yogurt"},
+    {t:"Cena",n:"200g filetto di maiale magro + cavolfiore al vapore — CENA PROTEICA",k:"320 kcal",tag:"p",img:"steak"},
+    {t:"INTEGR",n:"D3 × 1 · Zinco 25mg — con la cena",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"D3 × 1 terza dose — con mandorle",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"Magnesio 3 capsule — 30 min pre-nanna",k:"—",tag:"i",img:null},
+    {t:"Totale",n:"Variante B · Lenticchie = proteine vegetali + ferro · Alcol ZERO",k:"~1.450 kcal",tag:"tot",img:null},
+  ],
+  p:[
+    {t:"Pre (6:00)",n:"1 banana + caffè nero",k:"90 kcal",tag:"c",img:"banana"},
+    {t:"Post (8:30)",n:"Whey 1 misurino + 300ml acqua — in ufficio ⚡",k:"~140 kcal",tag:"p",img:"whey"},
+    {t:"Pranzo",n:"90g farro perlato + 200g petto pollo + peperoni grigliati + olio EVO",k:"610 kcal",tag:"c",img:"chicken"},
+    {t:"INTEGR",n:"D3 × 1 · Colina 700mg · Omega3 × 1 — con olio EVO",k:"—",tag:"i",img:null},
+    {t:"Spuntino",n:"2 gallette riso + 30g ricotta magra + pomodorino",k:"180 kcal",tag:"c",img:"vegetables"},
+    {t:"Cena",n:"220g gamberoni saltati in padella + insalata mista + olio EVO",k:"300 kcal",tag:"p",img:"shrimp"},
+    {t:"INTEGR",n:"D3 × 1 · Zinco 25mg — con la cena",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"D3 × 1 terza dose — con mandorle",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"Magnesio 3 capsule — 30 min pre-nanna",k:"—",tag:"i",img:null},
+    {t:"Totale",n:"Farro al posto del riso: più fibre · Gamberoni leggeri a cena",k:"~1.780 kcal",tag:"tot",img:null},
+  ],
+  c:[
+    {t:"Pre (6:00)",n:"1 banana + caffè nero",k:"90 kcal",tag:"c",img:"banana"},
+    {t:"Post (8:00)",n:"Whey 1 misurino + 300ml acqua — a casa",k:"~140 kcal",tag:"p",img:"whey"},
+    {t:"Pranzo",n:"90g riso venere nero + 180g salmone al forno + verdure + olio EVO",k:"580 kcal",tag:"c",img:"salmon"},
+    {t:"INTEGR",n:"D3 × 1 · Colina 700mg · Omega3 × 1 — con olio EVO",k:"—",tag:"i",img:null},
+    {t:"Spuntino",n:"1 kiwi + 20g mandorle",k:"155 kcal",tag:"f",img:"nuts"},
+    {t:"Cena",n:"200g orata al forno + zucchine grigliate + olio EVO",k:"350 kcal",tag:"p",img:"fish"},
+    {t:"INTEGR",n:"D3 × 1 · Zinco 25mg — con la cena",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"D3 × 1 terza dose — con mandorle",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"Magnesio 3 capsule — 30 min pre-nanna",k:"—",tag:"i",img:null},
+    {t:"Totale",n:"Riso venere: IG più basso · Zona 2 · Whey subito dopo rientro",k:"~1.750 kcal",tag:"tot",img:null},
+  ],
+  l:[
+    {t:"Pre (7:00)",n:"200g yogurt greco + 1 banana + 1 dattero (1h prima)",k:"300 kcal",tag:"c",img:"yogurt"},
+    {t:"Post",n:"Whey 1 misurino + 300ml acqua — a casa",k:"~140 kcal",tag:"p",img:"whey"},
+    {t:"Pranzo",n:"100g riso basmati + 200g salmone + verdure abbondanti + olio EVO",k:"660 kcal",tag:"c",img:"salmon"},
+    {t:"INTEGR",n:"D3 × 1 · Colina 700mg · Omega3 × 1 — con olio EVO",k:"—",tag:"i",img:null},
+    {t:"Spuntino",n:"1 banana + 20g noci",k:"210 kcal",tag:"c",img:"banana"},
+    {t:"Cena",n:"220g branzino al vapore + broccoletti + olio EVO",k:"430 kcal",tag:"p",img:"fish"},
+    {t:"INTEGR",n:"D3 × 1 · Zinco 25mg — con la cena",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"D3 × 1 terza dose — con noci",k:"—",tag:"i",img:null},
+    {t:"INTEGR",n:"Magnesio 3 capsule — 30 min pre-nanna",k:"—",tag:"i",img:null},
+    {t:"Totale",n:"Variante B · Salmone al pranzo · Ben meritato!",k:"~1.900 kcal",tag:"tot",img:null},
+  ],
+};
+
+// Alterna automaticamente tra variante A e B ogni settimana
+const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+const MEALS = weekNum % 2 === 0 ? MEALS_A : MEALS_B;
+
 const TIPS={
-  r:"💧 Whey + acqua a colazione: zero picco glicemico. Bevi 3L oggi. Alcol ZERO assoluto.",
-  p:"⚡ Shaker in borsa con misurino già dentro! Post-workout entro 30 min in ufficio. Vai in SCHEDA per registrare i pesi.",
-  c:"🏃 Zona 2 oggi — dovresti riuscire a parlare. Whey + acqua appena rientri a casa.",
-  l:"🏅 Pre-lungo: yogurt greco + banana (più digeribile). Post-lungo: Whey + acqua. Calorie alte — meritate!"
+  r:"💧 Giorni riposo: YOGURT GRECO al posto della Whey (reni!). Proteine max 130-140g. Bevi 3L. Alcol ZERO. Lenticchie o uova a pranzo.",
+  p:"⚡ Shaker in borsa! Whey SOLO nei giorni di allenamento. Post-workout entro 30 min. Farro o riso basmati a pranzo.",
+  c:"🏃 Zona 2 — dovresti riuscire a parlare. Riso venere o pasta integrale a pranzo. Whey appena rientri. Proteine max 130-140g.",
+  l:"🏅 Pre-lungo: yogurt greco + banana. Post-lungo: Whey subito. Calorie più alte — meritate! Sei a -6.5 kg dalla partenza 💪"
 };
 
 const DCOL={r:"#059669",p:"#7C3AED",c:"#D97706",l:"#DB2777"};
@@ -658,8 +716,8 @@ const SPESA = [
   {cat:"🌾 Carboidrati",items:[
     {n:"Riso basmati",q:"400g"},{n:"Farro perlato",q:"200g"},
     {n:"Riso venere nero",q:"200g"},{n:"Pasta integrale",q:"200g"},
-    {n:"Patate dolci",q:"200g"},{n:"Gallette di riso",q:"1 pacco"},
-    {n:"Datteri secchi",q:"50g"},
+    {n:"Lenticchie (secche o in scatola)",q:"200g"},{n:"Patate dolci",q:"200g"},
+    {n:"Gallette di riso",q:"1 pacco"},{n:"Datteri secchi",q:"50g"},
   ]},
   {cat:"🍎 Frutta",items:[
     {n:"Banane",q:"8-10"},{n:"Mele",q:"5-6"},{n:"Pere",q:"3-4"},
