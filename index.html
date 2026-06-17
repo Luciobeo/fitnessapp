@@ -292,7 +292,7 @@ body:before{
   <div class="ph">
     <div class="pt">Buongiorno Andrea 👋</div>
     <div class="ps" id="today-date"></div>
-    <span class="badge">92.5 kg · -6.5 kg · Girovita 98 cm · Goal &lt;90 kg 💪</span>
+    <span class="badge">92.5 kg · -6.5 kg · Girovita 98 cm · Goal 86 kg 💪</span>
   </div>
   <div style="font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Che tipo di giornata è?</div>
   <div class="daygrid">
@@ -935,7 +935,7 @@ function renderPesoStats(){
   const w=state.weights;
   const el=document.getElementById('peso-stats');
   if(!w.length){el.innerHTML='';return;}
-  const cur=w[w.length-1].kg,start=99,goal=90;
+  const cur=w[w.length-1].kg,start=99,goal=86;
   const lost=(start-cur).toFixed(1),toGoal=(cur-goal).toFixed(1);
   const pct=Math.min(100,Math.max(0,((start-cur)/(start-goal))*100)).toFixed(0);
   el.innerHTML=`<div class="card">
