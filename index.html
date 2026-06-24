@@ -656,11 +656,47 @@ const MEALS_B = {
 const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
 const MEALS = weekNum % 2 === 0 ? MEALS_A : MEALS_B;
 
-const TIPS={
-  r:"💧 Giorni riposo: YOGURT GRECO al posto della Whey (reni!). Proteine max 130-140g. Bevi 3L. Alcol ZERO. Lenticchie o uova a pranzo.",
-  p:"⚡ Shaker in borsa! Whey SOLO nei giorni di allenamento. Post-workout entro 30 min. Farro o riso basmati a pranzo.",
-  c:"🏃 Zona 2 — dovresti riuscire a parlare. Riso venere o pasta integrale a pranzo. Whey appena rientri. Proteine max 130-140g.",
-  l:"🏅 Pre-lungo: yogurt greco + banana. Post-lungo: Whey subito. Calorie più alte — meritate! Sei a -6.5 kg dalla partenza 💪"
+
+  // SCHEMA INTEGRATORI AGGIORNATO — Giugno 2026
+  // Omega 3 torna a 2 caps/die (da 1) · Creatina aggiunta · NAC opzionale
+  const INTEGR_SCHEMA = {
+    colazione: [
+      "Whey 1 misurino + 300ml acqua",
+      "Collagene idrolizzato 10g (nella whey)",
+      "Vitamina C 500mg",
+    ],
+    pranzo: [
+      "Omega 3 × 1 capsula",
+      "Colina bitartrato 700mg",
+      "Creatina monoidrato 5g (sciolta in acqua o nel pasto)",
+    ],
+    cena: [
+      "Omega 3 × 1 capsula (da oggi + 1 rispetto a prima)",
+      "Zinco 25mg",
+      "NAC (N-acetilcisteina) 600mg — OPZIONALE",
+    ],
+    prenanna: [
+      "Magnesio bisglicinato 3 capsule (30 min prima)",
+    ],
+  };
+  
+  const INTEGR_NOTES = {
+    omega3: "🟢 AGGIORNATO: da 1 a 2 caps/die — fegato perfetto all'ecografia, proteine aumentate",
+    creatina: "🟢 NUOVO: 5g/die — protezione massa magra in cut + recupero palestra + riduce DOMS",
+    vitamina_c: "✅ Confermato: collagene + sistema immunitario",
+    collagene: "✅ Confermato: elasticità pelle pre-criolipolisi — 10g mattina",
+    nac: "🟡 OPZIONALE: 600mg/die — antiossidante, supporto fegato, riduce DOMS",
+    magnesio: "✅ Confermato: 3 capsule pre-nanna — recupero, sonno",
+    zinco: "✅ Confermato: 25mg cena",
+    colina: "✅ Confermato: 700mg pranzo",
+  };
+
+
+  const TIPS={
+  r:"💧 Giorni riposo: YOGURT GRECO al posto della Whey (reni!). Omega3 × 2 caps · Creatina 5g · Proteine max 130-140g. Alcol ZERO.",
+  p:"⚡ Shaker in borsa! Whey + Collagene 10g. Post-workout entro 30 min. Creatina 5g a pranzo. Farro o riso a pranzo.",
+  c:"🏃 Zona 2 — dovresti riuscire a parlare. Riso venere a pranzo. Creatina 5g. Proteine max 130-140g. Whey + Collagene appena rientri.",
+  l:"🏅 Pre-lungo: yogurt greco + banana. Post-lungo: Whey + Collagene. Creatina 5g. Calorie alte — meritate! -7.4 kg dalla partenza 💪"
 };
 
 const DCOL={r:"#059669",p:"#7C3AED",c:"#D97706",l:"#DB2777"};
